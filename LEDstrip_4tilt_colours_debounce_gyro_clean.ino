@@ -13,7 +13,7 @@
 //GYRO LIBRARIES AND VARIABLES
 #include "Wire.h"           //Interface with 6050MPU
 #include <MPU6050_light.h>  //Library for reading value from the 6050 sensor
-MPU6050 mpu(Wire);
+MPU6050 mpu(Wire); 
 
 //LED STRIP LIBRARIES AND VARIABLES
 #include <FastLED.h>           // Include FastLED library
@@ -78,8 +78,8 @@ void loop() {
   pin15 = digitalRead(15);
   pin16 = digitalRead(16);
 
-  tiltState = pin10 + pin14 + pin15 + pin16;
-  facingDown = (!pin10 && !pin14 && !pin15 && !pin16);
+  tiltState = pin10 + pin14 + pin15 + pin16; //sum up the values from the tilt sensors (so that in subsequent loops can see if cube has changed positions)
+  facingDown = (!pin10 && !pin14 && !pin15 && !pin16); //are all the pins reading the titl sensors in the LOW state? (facing down)
 
   // check to see if any or all of the tilt sensors changed
   // (i.e. the input went from LOW to HIGH), and you've waited long enough
