@@ -30,7 +30,7 @@ unsigned long timeBright = 0;  //timer to keep track of how often to check for b
 // the following variables are unsigned longs because the time, measured in
 // milliseconds, will quickly become a bigger number than can be stored in an int.
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 55;    // the debounce time; increase if the output flickers
+unsigned long debounceDelay = 120;   // the debounce time; increase if the output flickers
 
 //CUBE ORIENTATION VARIABLES
 int facingDown;         //variable to hold whether the cube is facing up or on its side, or down
@@ -64,10 +64,10 @@ void setup() {
   //initialize the colour array
   colours[0] = CRGB::White;
   colours[1] = CRGB::Red;
-  colours[2] = CRGB::Gold;
-  colours[3] = CRGB::Amethyst;
+  colours[2] = CRGB::Yellow;
+  colours[3] = CRGB::Blue;
 
-} //end the setup section
+}  //end the setup section
 
 void loop() {
   mpu.update();
@@ -78,9 +78,8 @@ void loop() {
   pin15 = digitalRead(15);
   pin16 = digitalRead(16);
 
-
   tiltState = pin10 + pin14 + pin15 + pin16;
-  facingDown = !(pin10 || pin14 || pin15 || pin16);
+  facingDown = (!pin10 && !pin14 && !pin15 && !pin16);
 
   // check to see if any or all of the tilt sensors changed
   // (i.e. the input went from LOW to HIGH), and you've waited long enough
@@ -96,16 +95,16 @@ void loop() {
 
     // use a timer to delay how often we check for rotation and brightness, otherwise
     // because the loop runs so fast, the brightness quickly goes to 0 or max
-    if (millis() - timeBright > 160) {
+    if (millis() - timeBright > 175) {
       if (tiltState == 4) {  //check if cube facing up, so that it can be rotated to control brightness
                              //try to filter out noise from the sensor, and unintentional bumps, instead look for intentional rotation
-        if (rotating < -6) {
-          brightness += 15;
+        if (rotating < -10) {
+          brightness += 8;
           if (brightness > 255) {
             brightness = 255;
           }
-        } else if (rotating > 6) {
-          brightness -= 15;
+        } else if (rotating > 7) {
+          brightness -= 14;
           if (brightness < 0) {
             brightness = 0;
           }
@@ -127,8 +126,6 @@ void loop() {
       currentColour = 2;
     } else if (pin15 == LOW && pin16 == HIGH) {
       currentColour = 3;
-    } else {
-      currentColour = currentColour;  //keep the color the same if in some weird state
     }
 
     // Loop through each LED and set it
@@ -138,10 +135,11 @@ void loop() {
       } else {
         leds[dot] = colours[currentColour];  // Set the current LED to blue
       }
+
       FastLED.show();  // Update LEDs
     }                  //end for looping to update LEDs
   }                    // end if debounce timer greater than threshold
 
   // save the reading. Next time through the loop, it'll be the lastTiltState:
   lastTiltState = tiltState;
-} // end the main loop
+}  // end the main loop
